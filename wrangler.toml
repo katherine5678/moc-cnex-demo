@@ -1,0 +1,7 @@
+name = "moc-cnex-demo"
+compatibility_date = "2025-07-12"
+
+# 純靜態前端（HTML / CSS / JS）
+[assets]
+directory = "./"
+not_found_handling = "404-page"

@@ -47,6 +47,10 @@ npx --yes serve -p 5173
 | 邀請單位 | `#/unit/單位名稱` |
 | 案件詳情 | `#/case/團號` |
 
-## 技術
+## 部署（Cloudflare Worker Static Assets）
 
-HTML / CSS / 原生 JavaScript（ES modules）+ PDF.js（CDN）
+```bash
+npx wrangler deploy
+```
+
+設定見根目錄 `wrangler.toml`。Worker 名稱預設為 `moc-cnex-demo`，若與 Dashboard 不同請改 `name`。
