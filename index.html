@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>兩岸交流紀錄（測試用假資料）</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/app.css" />
+  </head>
+  <body>
+    <div class="bg-atmosphere" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <div class="brand">
+        <h1>兩岸交流紀錄（測試用假資料）</h1>
+        <p class="brand-sub">案件建檔 · 名冊管理 · 統計檢視</p>
+      </div>
+    </header>
+
+    <main>
+      <section id="view-records" class="view is-active" aria-label="交流紀錄">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <input
+              id="search-input"
+              type="search"
+              placeholder="搜尋團號、邀請單位、收件號、申請人、交流人員…"
+              autocomplete="off"
+            />
+          </div>
+          <label class="year-switch">
+            <span>年份</span>
+            <select id="stats-year" aria-label="選擇統計年份"></select>
+          </label>
+          <div class="toolbar-actions">
+            <button id="btn-export" class="btn btn-ghost" type="button">匯出 JSON</button>
+            <label class="btn btn-ghost file-btn">
+              匯入 JSON
+              <input id="import-json" type="file" accept=".json,application/json" hidden />
+            </label>
+            <button id="btn-new" class="btn btn-primary" type="button">新增案件</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="stats-summary"></div>
+
+        <div id="records-empty" class="empty-state hidden">
+          <p id="empty-title">尚無交流案件</p>
+          <p id="empty-sub" class="muted">可貼上移民署通知信，或手動新增。</p>
+          <button id="btn-empty-new" class="btn btn-primary" type="button">新增第一筆</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="records-table" aria-label="交流案件列表">
+            <colgroup>
+              <col class="col-expand" />
+              <col class="col-group" />
+              <col class="col-unit" />
+              <col class="col-receipt" />
+              <col class="col-applicant" />
+              <col class="col-count" />
+              <col class="col-date" />
+              <col class="col-actions" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="col-expand" aria-label="展開"></th>
+                <th>團號</th>
+                <th>邀請單位</th>
+                <th>收件號</th>
+                <th>申請人</th>
+                <th>人數</th>
+                <th>加入日</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="records-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-company" class="view" aria-label="邀請單位" hidden>
+        <div class="company-top">
+          <button type="button" id="btn-company-back" class="btn btn-ghost">← 返回案件紀錄</button>
+        </div>
+        <header class="company-header">
+          <p class="company-eyebrow">邀請單位</p>
+          <h2 id="company-name"></h2>
+          <p id="company-sub" class="muted"></p>
+        </header>
+        <div class="stats-grid" id="company-summary"></div>
+        <div class="table-wrap">
+          <table class="records-table" aria-label="該單位申請紀錄">
+            <thead>
+              <tr>
+                <th>團號</th>
+                <th>收件號</th>
+                <th>申請人</th>
+                <th>人數</th>
+                <th>加入日</th>
+                <th>事由</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="company-tbody"></tbody>
+          </table>
+        </div>
+        <div id="company-empty" class="empty-state hidden">
+          <p>此單位尚無申請紀錄</p>
+        </div>
+      </section>
+
+      <section id="view-detail" class="view" aria-label="案件詳情" hidden>
+        <div class="company-top">
+          <button type="button" id="btn-detail-back" class="btn btn-ghost">← 返回</button>
+        </div>
+        <header class="company-header">
+          <p class="company-eyebrow">案件詳情</p>
+          <h2 id="detail-title">案件詳情</h2>
+          <p id="detail-sub" class="muted"></p>
+        </header>
+        <div id="detail-body"></div>
+        <div class="detail-actions">
+          <button type="button" id="btn-edit-from-detail" class="btn btn-primary">編輯</button>
+          <button type="button" id="btn-delete-from-detail" class="btn btn-danger">刪除</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- 新增 / 編輯 Modal -->
+    <dialog id="record-dialog" class="modal">
+      <form id="record-form" method="dialog">
+        <header class="modal-header">
+          <h2 id="dialog-title">新增案件</h2>
+          <button type="button" class="icon-btn" id="btn-close-dialog" aria-label="關閉">×</button>
+        </header>
+
+        <div class="modal-body">
+          <fieldset class="paste-block">
+            <legend>快速建檔</legend>
+            <label for="paste-text">貼上移民署通知信</label>
+            <textarea
+              id="paste-text"
+              rows="4"
+              placeholder="申請事由『204』， 團號:155997357,邀請單位『…』…"
+            ></textarea>
+            <div class="row-actions">
+              <button type="button" id="btn-parse-paste" class="btn btn-secondary">解析文字</button>
+              <label class="btn btn-ghost file-btn">
+                匯入團體名冊 PDF
+                <input id="import-pdf" type="file" accept=".pdf,application/pdf" hidden />
+              </label>
+            </div>
+            <p id="parse-hint" class="hint"></p>
+          </fieldset>
+
+          <div class="form-grid">
+            <label>
+              <span class="field-caption">團號 <span class="req">*</span></span>
+              <input name="groupNo" id="field-groupNo" required />
+            </label>
+            <label>
+              <span class="field-caption">收件號</span>
+              <input name="receiptNo" id="field-receiptNo" />
+            </label>
+            <label>
+              <span class="field-caption">邀請單位 <span class="req">*</span></span>
+              <input name="inviteUnit" id="field-inviteUnit" required />
+            </label>
+            <label>
+              <span class="field-caption">申請人姓名 <span class="req">*</span></span>
+              <input name="applicantName" id="field-applicantName" required />
+            </label>
+            <label>
+              <span class="field-caption">申請事由</span>
+              <input name="purpose" id="field-purpose" placeholder="如 204" />
+            </label>
+            <label>
+              <span class="field-caption">加入日期</span>
+              <input name="joinedAt" id="field-joinedAt" type="date" />
+            </label>
+          </div>
+
+          <div class="members-section">
+            <div class="members-head">
+              <h3>交流人員清單</h3>
+              <button type="button" id="btn-add-member" class="btn btn-ghost btn-sm">＋ 加人</button>
+            </div>
+            <div class="members-table-wrap">
+              <table class="members-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>姓名</th>
+                    <th>性別</th>
+                    <th>現任職單位</th>
+                    <th>職稱</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="members-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <label class="notes-label">
+            備註
+            <textarea name="notes" id="field-notes" rows="2"></textarea>
+          </label>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" id="btn-delete-record" class="btn btn-danger hidden">刪除</button>
+          <div class="spacer"></div>
+          <button type="button" id="btn-cancel" class="btn btn-ghost">取消</button>
+          <button type="submit" class="btn btn-primary">儲存</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
