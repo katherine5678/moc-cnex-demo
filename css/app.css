@@ -341,6 +341,10 @@ select:focus {
   text-align: right;
 }
 
+.records-table > thead > tr > th.actions {
+  text-align: center;
+}
+
 .link-btn {
   border: 0;
   background: none;
