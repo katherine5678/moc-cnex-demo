@@ -1,0 +1,23 @@
+name = "punch-bot"
+main = "src/index.js"
+compatibility_date = "2025-07-12"
+
+# 上班時間 09:00～18:00
+# 時間為 UTC：台北 08:50（上班提醒）/ 08:57（再提醒）/ 18:00（下班提醒）/ 18:10（再提醒）
+# 每天都跑（補班日可能是週六），由程式判斷是否為上班日
+[triggers]
+crons = ["50 0 * * *", "57 0 * * *", "0 10 * * *", "10 10 * * *"]
+
+[[kv_namespaces]]
+binding = "KV"
+id = "請填入 wrangler kv namespace create punch-bot 產生的 id"
+
+[vars]
+# 改成 "false" 才會真的呼叫 Apollo（需先實作 src/apollo.js 的 realPunch）
+APOLLO_DRY_RUN = "true"
+
+# 以下請用 `npx wrangler secret put <名稱>` 設定，不要寫在這裡：
+#   TELEGRAM_BOT_TOKEN       — 從 @BotFather 取得
+#   TELEGRAM_CHAT_ID         — 你和機器人的 chat id
+#   TELEGRAM_WEBHOOK_SECRET  — 自訂一串隨機字（只能用 A-Z a-z 0-9 _ -）
+#   APOLLO_USERNAME / APOLLO_PASSWORD — 實作真正打卡時再設定
